@@ -1,5 +1,4 @@
 <script setup lang="ts">
-/* 2-37 Chart.js related code */
 import { Line } from "vue-chartjs";
 import {
     Chart as ChartJS,
@@ -32,11 +31,17 @@ const response = await useFetch("/api/btc");
 //@ts-ignore
 const btcUpdates = response.data.value.map((btcUpdate) => btcUpdate.json);
 const timestamps = reactive(
-    btcUpdates.map((btcUpdate) => {
-        //@ts-ignore
-        const date = new Date(btcUpdate.time.updatedISO);
-        return date.toISOString().split("T")[1].slice(0, 5);
-    }).reverse(),
+    btcUpdates
+        .map((btcUpdate) => {
+            //@ts-ignore
+            const date = new Date(btcUpdate.time.updatedISO);
+            return date.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+        })
+        .reverse(),
 );
 const prices = reactive(
     //@ts-ignore
@@ -48,7 +53,7 @@ const chartData = ref({
     labels: timestamps,
     datasets: [
         {
-            label: "Data One",
+            label: "BTC/USD",
             backgroundColor: "#E6A328",
             data: prices,
         },
