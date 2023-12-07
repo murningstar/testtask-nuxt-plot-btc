@@ -36,7 +36,7 @@ const timestamps = reactive(
         //@ts-ignore
         const date = new Date(btcUpdate.time.updatedISO);
         return date.toISOString().split("T")[1].slice(0, 5);
-    }),
+    }).reverse(),
 );
 const prices = reactive(
     //@ts-ignore
