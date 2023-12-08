@@ -8,6 +8,7 @@ export default defineNitroPlugin((nitro) => {
     }
     nitro.hooks.hookOnce("close", async () => {
         //@ts-ignore
-        await prisma.$disconnect();
+        /* Nuxt говорит, что призмы в этот момент уже не существует */
+        // await prisma.$disconnect();
     });
 });

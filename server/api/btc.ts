@@ -5,7 +5,7 @@ import {
     getDateMonthAgo,
     getDateYearAgo,
 } from "~/utils/dateUtils";
-import { queryInRange } from "~/server/dataLayer/queryInRange";
+import { queryRange } from "../dataLayer/queryRange";
 
 export default defineEventHandler(async (event) => {
     // @ts-ignore
@@ -13,25 +13,25 @@ export default defineEventHandler(async (event) => {
     const params = getQuery(event);
     switch ((params as any).interval) {
         case "day": {
-            return await queryInRange(getDateDayAgo(), new Date(), prisma);
+            return await queryRange(getDateDayAgo(), new Date(), prisma);
         }
         case "week": {
-            return await queryInRange(getDateWeekAgo(), new Date(), prisma);
+            return await queryRange(getDateWeekAgo(), new Date(), prisma);
         }
         case "month": {
-            return await queryInRange(getDateMonthAgo(), new Date(), prisma);
+            return await queryRange(getDateMonthAgo(), new Date(), prisma);
         }
         case "year": {
-            return await queryInRange(getDateYearAgo(), new Date(), prisma);
+            return await queryRange(getDateYearAgo(), new Date(), prisma);
         }
         case "customrange": {
             const { lowerLimit, upperLimit } = params as any;
             const isLowerNumeric = !Number.isNaN(lowerLimit);
             const isUpperNumeric = !Number.isNaN(upperLimit);
             if (isLowerNumeric && isUpperNumeric) {
-                return await queryInRange(
-                    new Date(lowerLimit),
-                    new Date(upperLimit),
+                return await queryRange(
+                    new Date(Number(lowerLimit)),
+                    new Date(Number(upperLimit)),
                     prisma,
                 );
             } else {
@@ -50,6 +50,4 @@ export default defineEventHandler(async (event) => {
             });
         }
     }
-
-    // return query;
 });

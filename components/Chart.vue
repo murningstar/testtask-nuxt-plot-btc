@@ -15,35 +15,36 @@ import {
 
 /* Setup interval controls */
 /* 1) Radio (interval controls) */
-const intervalModel = ref("day");
-
 const options = [
     {
+        label: "Day",
         value: "Day",
-        label: "day",
     },
     {
+        label: "Week",
         value: "Week",
-        label: "week",
     },
     {
+        label: "Month",
         value: "Month",
-        label: "month",
     },
     {
+        label: "Year",
         value: "Year",
-        label: "year",
     },
     {
-        value: "Custom range",
-        label: "customrange",
+        label: "Custom range",
+        value: "customrange",
     },
 ].map((s) => {
-    s.value = s.value.toLowerCase();
+    s.value = s.value.split(" ").join("").toLowerCase();
     return s;
 });
+const intervalModel = ref("day");
 /* 2) RangePicker (interval controls) */
-const rangePickerVisible = computed(() => intervalModel.value === "custom");
+const rangePickerVisible = computed(
+    () => intervalModel.value === "customrange",
+);
 const rangeModel = ref<[number, number]>([
     getDateDayAgo().valueOf(),
     Date.now(),
@@ -65,41 +66,39 @@ ChartJS.register(
 
 /* Fetch and prepare data */
 const params = computed(() => {
-    if (intervalModel.value! == "customrange") {
+    if (intervalModel.value !== "customrange") {
         return { interval: intervalModel.value };
     } else {
         return {
-            interval: "customrage",
+            interval: "customrange",
             lowerLimit: rangeModel.value[0],
             upperLimit: rangeModel.value[1],
         };
     }
 });
-const response = await useFetch("/api/btc", {
-    params: params.value
+const { data } = await useLazyFetch("/api/btc", {
+    query: params,
 });
 //@ts-ignore
-const btcUpdates = response.data.value.map((btcUpdate) => btcUpdate.json);
-const timestamps_Y = reactive(
-    btcUpdates
-        .map((btcUpdate) => {
-            //@ts-ignore
-            const date = new Date(btcUpdate.time.updatedISO);
-            return date.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-            });
-        })
-        .reverse(),
-);
-const prices_X = reactive(
-    //@ts-ignore
-    btcUpdates.map((btcUpdate) => btcUpdate.bpi.USD.rate_float),
-);
-/* const timestamps_Y = computed(() => {
+const btcUpdates = ref(data.value.map((btcUpdate) => btcUpdate.json));
 
-}) */
+const timestamps_Y = computed(() => {
+    return btcUpdates.value.map((btcUpdate) => {
+        //@ts-ignore
+        const date = new Date(btcUpdate.time.updatedISO);
+
+        return date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        });
+    });
+});
+
+const prices_X = computed(() => {
+    //@ts-ignore
+    return btcUpdates.value.map((btcUpdate) => btcUpdate.bpi.USD.rate_float);
+});
 
 /* Use fetched data in chart */
 const chartData = ref({
@@ -116,6 +115,14 @@ const chartOptions = ref({
     responsive: true,
     maintainAspectRatio: false,
 });
+
+/* async function refetch(newIntervalModel: string) {
+    const response = await useFetch("/api/btc", {
+        params: params.value,
+    });
+    //@ts-ignore
+    btcUpdates.value = data.value.map((btcUpdate) => btcUpdate.json);
+} */
 </script>
 
 <template>
@@ -146,6 +153,7 @@ const chartOptions = ref({
                         :key="option.value"
                         :value="option.value"
                         :label="option.label"
+                        :checked="option.value == intervalModel"
                     />
                 </n-radio-group>
                 <n-date-picker

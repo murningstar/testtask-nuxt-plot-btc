@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-async function queryInRange(
+async function queryRange(
     lowerLimit: Date,
     upperLimit: Date,
     prisma: PrismaClient,
@@ -15,4 +15,4 @@ async function queryInRange(
     });
 }
 
-export { queryInRange };
+export { queryRange };
