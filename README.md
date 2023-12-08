@@ -1,3 +1,8 @@
+# Что в нормальном проекте нужно сделать по-другому (что можно улучшить)
+- Принимать данные для отображения в Chart.vue как проп
+- Валидация Url-параметров
+- 
+
 # Nuxt 3 Minimal Starter
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
