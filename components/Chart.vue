@@ -12,6 +12,12 @@ import {
     LinearScale,
     PointElement,
 } from "chart.js";
+import {
+    getDateDayAgo,
+    getDateWeekAgo,
+    getDateMonthAgo,
+    getDateYearAgo,
+} from "~/utils/dateUtils";
 
 /* Setup interval controls */
 /* 1) Radio (interval controls) */
