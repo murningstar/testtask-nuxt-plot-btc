@@ -12,6 +12,7 @@
     "devDependencies": {
         "@nuxt/devtools": "latest",
         "@nuxtjs/tailwindcss": "^6.10.1",
+        "naive-ui": "^2.35.0",
         "nuxt": "^3.8.2",
         "prettier": "^3.1.0",
         "prettier-plugin-tailwindcss": "^0.5.9",
@@ -20,6 +21,7 @@
         "vue-router": "^4.2.5"
     },
     "dependencies": {
+        "@css-render/vue3-ssr": "^0.15.12",
         "@prisma/client": "^5.7.0",
         "chart.js": "^4.4.1",
         "vue-chartjs": "^5.2.0"
