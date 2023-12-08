@@ -1,82 +1,21 @@
-# Что в нормальном проекте нужно сделать по-другому (что можно улучшить)
-- Принимать данные для отображения в Chart.vue как проп
-- Валидация Url-параметров
-- Обрабока во фронте, если легла база
-- Включить data decimation в chart.js
-- И ещё много чего
+# Nuxt btc-chart тестовое
 
-# Nuxt 3 Minimal Starter
+Собранный проект запускается запуском docker-compose файла, из второго репозитория: "ссылка" (Репозиторий с базой и сервисом-поллером данных из открытого api)
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Структура/описание/логика:
 
-## Setup
+-   Вся работа в этом репозитории велась в основном вокруг компонента Chart.vue.
+-   Для отрисовки графика используется библиотека chart.js. Она автоматически умещает все данные в график
+-   UI-компоненты для выбора интервалов - из NaiveUI
+-   Выбираемый интервал отправляется в виде url-параметров
+-   Данные для отрисовки запрашиваются у `/server/api/btc`. 
+-   `btc` обработчик парсит url-параметры и вызывает data-access handler, который делает запрос к базе через призму. (база уже относится ко второму репозиторию)
 
-Make sure to install the dependencies:
+## Что в нормальном проекте нужно сделать по-другому (что можно улучшить)
 
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+-   Можно добавить logic-слой и вынести в него switch, чтобы в контроллере остался только парсинг параметров
+-   Принимать данные для отображения в Chart.vue как проп
+-   Валидация Url-параметров
+-   Обрабока во фронте, если легла база
+-   Включить data decimation в chart.js
+-   И ещё много чего
