@@ -5,7 +5,7 @@ import {
     getDateMonthAgo,
     getDateYearAgo,
 } from "~/utils/dateUtils";
-import { queryInRange } from "../dataLayer/queryInRange";
+import { queryInRange } from "~/server/dataLayer/queryInRange";
 
 export default defineEventHandler(async (event) => {
     // @ts-ignore

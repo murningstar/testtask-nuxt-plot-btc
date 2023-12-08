@@ -12,8 +12,6 @@ import {
     LinearScale,
     PointElement,
 } from "chart.js";
-import { _backgroundColor } from "#tailwind-config/theme";
-import { getDateDayAgo } from "~/server/helpers/dateHelpers";
 
 /* Setup interval controls */
 /* 1) Radio (interval controls) */
