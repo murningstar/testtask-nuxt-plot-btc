@@ -17,4 +17,3 @@ function getDateYearAgo() {
     return new Date(res);
 }
 export { getDateDayAgo, getDateWeekAgo, getDateMonthAgo, getDateYearAgo };
-console.log(getDateDayAgo());
