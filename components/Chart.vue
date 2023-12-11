@@ -13,7 +13,7 @@ import {
     PointElement,
     type ChartOptions,
 } from "chart.js";
-import { getDateDayAgo } from "../utils/dateUtils";
+import { getDateDayAgo } from "~/utils/dateUtils";
 
 /* 1. Setup interval controls */
 /* 1.1 Anti FOUC (flash-of-unstyled-content) for naive-ui controls */
@@ -97,7 +97,7 @@ const prices_X = computed(() => {
     return btcUpdates.value.map((btcUpdate) => btcUpdate.bpi.USD.rate_float);
 });
 
-/* 3. Setup chart */
+/* 3.0 Setup chart */
 ChartJS.defaults.color = "#C7C7C7";
 ChartJS.defaults.borderColor = "white";
 ChartJS.register(
@@ -110,15 +110,7 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
 );
-/* 3.1 Prepare ChartOptions */
-const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        decimation: { enabled: true, algorithm: "lttb" },
-    },
-};
-/* 3.2 Compute ChartData */
+/* 3.1 Compute ChartData */
 const chartData = computed(() => {
     const res = reactive({
         labels: timestamps_Y,
@@ -154,7 +146,6 @@ watch(
         name="chart-wrapper"
         class="relative mx-[5%] flex h-full flex-col pb-5"
     >
-        <h2 class="z-10 text-red-500">{{ data?.length }}</h2>
         <!-- Chart -->
         <figure
             name="chart-container"

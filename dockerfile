@@ -8,16 +8,18 @@ COPY package*.json .
 
 RUN npm install
 
-COPY ./server ./server
-COPY ./pages ./pages
-COPY ./public ./public
-COPY ./components ./components
 COPY ./assets ./assets
-COPY tsconfig.json .
+COPY ./components ./components
+COPY ./pages ./pages
+COPY ./plugins ./plugins
+COPY ./prisma ./prisma
+COPY ./public ./public
+COPY ./server ./server
+COPY ./utils ./utils
 COPY nuxt.config.ts .
+COPY tsconfig.json .
 COPY tailwind.config.js .
 
-COPY ./prisma ./prisma
 RUN npx prisma generate
 
 RUN npm run build
