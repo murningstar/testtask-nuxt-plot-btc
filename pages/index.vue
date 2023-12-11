@@ -7,6 +7,6 @@ import "@/assets/css/global.css";
         <h1 name="page-heading" class="relative p-5 text-center text-4xl">
             На этой страничке отображают биток
         </h1>
-        <Chart class="grow"/>
+        <Chart class="grow" />
     </div>
 </template>

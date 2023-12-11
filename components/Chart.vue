@@ -11,13 +11,9 @@ import {
     CategoryScale,
     LinearScale,
     PointElement,
+    type ChartOptions,
 } from "chart.js";
-import {
-    getDateDayAgo,
-    getDateWeekAgo,
-    getDateMonthAgo,
-    getDateYearAgo,
-} from "~/utils/dateUtils";
+import { getDateDayAgo } from "../utils/dateUtils";
 
 /* Setup interval controls */
 /* 1) Radio (interval controls) */
@@ -46,7 +42,7 @@ const options = [
     s.value = s.value.split(" ").join("").toLowerCase();
     return s;
 });
-const intervalModel = ref("day");
+const intervalModel = ref("month");
 /* 2) RangePicker (interval controls) */
 const rangePickerVisible = computed(
     () => intervalModel.value === "customrange",
@@ -82,15 +78,37 @@ const params = computed(() => {
         };
     }
 });
-const { data } = await useLazyFetch("/api/btc", {
-    query: params,
+const { data, refresh } = await useFetch("/api/btc", {
+    params,
+    // watch: [intervalModel, rangeModel],
+    /* key:
+        "/api/btc?interval=" +
+        (intervalModel.value == "customrange"
+            ? "customrange" +
+              "&" +
+              "lowerLimit=" +
+              rangeModel.value[0] +
+              "&" +
+              "upperLimit=" +
+              rangeModel.value[1] // Ключ для range (состоит из customrange+lowerlimit+upperlimit)
+            : intervalModel.value), */
 });
-//@ts-ignore
-const btcUpdates = ref(data.value.map((btcUpdate) => btcUpdate.json));
+
+/* watch(
+    [intervalModel, rangeModel],
+    () => {
+        refresh();
+    },
+    { deep: true },
+); */
+
+const btcUpdates = computed(() => {
+    return data.value!.map((btcUpdate) => btcUpdate.json);
+});
 
 const timestamps_Y = computed(() => {
     return btcUpdates.value.map((btcUpdate) => {
-        //@ts-ignore
+        // @ts-ignore
         const date = new Date(btcUpdate.time.updatedISO);
 
         return date.toLocaleTimeString([], {
@@ -102,7 +120,7 @@ const timestamps_Y = computed(() => {
 });
 
 const prices_X = computed(() => {
-    //@ts-ignore
+    // @ts-ignore
     return btcUpdates.value.map((btcUpdate) => btcUpdate.bpi.USD.rate_float);
 });
 
@@ -117,18 +135,32 @@ const chartData = ref({
         },
     ],
 });
-const chartOptions = ref({
+const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-});
+    plugins: {
+        decimation: { enabled: true, algorithm: "lttb" },
+    },
+};
 
-/* async function refetch(newIntervalModel: string) {
-    const response = await useFetch("/api/btc", {
-        params: params.value,
+const chartData2 = computed(() => {
+    const res = ref({
+        labels: timestamps_Y,
+        datasets: [
+            {
+                label: "BTC/USD",
+                backgroundColor: "#1ABA6A",
+                data: prices_X,
+            },
+        ],
     });
-    //@ts-ignore
-    btcUpdates.value = data.value.map((btcUpdate) => btcUpdate.json);
-} */
+    return res;
+});
+/* Anti FOUC for naive-ui controls */
+const controlsVisible = ref(false);
+onMounted(() => {
+    controlsVisible.value = true;
+});
 </script>
 
 <template>
@@ -136,39 +168,53 @@ const chartOptions = ref({
         name="chart-wrapper"
         class="relative mx-[5%] flex h-full flex-col pb-5"
     >
+        <h2 class="z-10 text-red-500">{{ data?.length }}</h2>
         <!-- Chart -->
         <figure
             name="chart-container"
             class="effects relative grow bg-black px-[10%] py-[5%]"
         >
-            <Line :data="chartData" :options="chartOptions" />
+            <Line
+                :data="chartData2.value"
+                :options="{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        decimation: { enabled: true, algorithm: 'lttb' },
+                    },
+                }"
+            />
         </figure>
         <figcaption class="text-center">
             ⬆️График биточка (⬅️пояснение)
         </figcaption>
         <!-- Controls -->
-        <div name="controls-container" class="absolute left-0 top-0">
-            <n-space vertical>
-                <n-radio-group
+        <div
+            name="controls-container"
+            v-if="controlsVisible"
+            class="absolute left-0 top-0"
+        >
+            <NSpace vertical>
+                <NRadioGroup
                     v-model:value="intervalModel"
                     name="radiobuttongroup1"
                     size="small"
                 >
-                    <n-radio-button
+                    <NRadioButton
                         v-for="option in options"
                         :key="option.value"
                         :value="option.value"
                         :label="option.label"
                         :checked="option.value == intervalModel"
                     />
-                </n-radio-group>
-                <n-date-picker
+                </NRadioGroup>
+                <NDatePicker
                     v-if="rangePickerVisible"
                     v-model:value="rangeModel"
                     type="daterange"
                     clearable
                 />
-            </n-space>
+            </NSpace>
         </div>
     </div>
 </template>
