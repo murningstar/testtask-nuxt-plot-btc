@@ -15,8 +15,13 @@ import {
 } from "chart.js";
 import { getDateDayAgo } from "../utils/dateUtils";
 
-/* Setup interval controls */
-/* 1) Radio (interval controls) */
+/* 1. Setup interval controls */
+/* 1.1 Anti FOUC (flash-of-unstyled-content) for naive-ui controls */
+const controlsVisible = ref(false);
+onMounted(() => {
+    controlsVisible.value = true;
+});
+/* 1.2 Radio (interval controls) */
 const options = [
     {
         label: "Day",
@@ -42,8 +47,8 @@ const options = [
     s.value = s.value.split(" ").join("").toLowerCase();
     return s;
 });
-const intervalModel = ref("month");
-/* 2) RangePicker (interval controls) */
+const intervalModel = ref("day");
+/* 1.3 RangePicker (interval controls) */
 const rangePickerVisible = computed(
     () => intervalModel.value === "customrange",
 );
@@ -52,21 +57,8 @@ const rangeModel = ref<[number, number]>([
     Date.now(),
 ]);
 
-/* Setup chart */
-ChartJS.defaults.color = "#C7C7C7";
-ChartJS.defaults.borderColor = "white";
-ChartJS.register(
-    Title,
-    Tooltip,
-    Legend,
-    LineController,
-    LineElement,
-    PointElement,
-    CategoryScale,
-    LinearScale,
-);
-
-/* Fetch and prepare data */
+/* 2. Fetch and prepare data */
+/* 2.1 Constuct params */
 const params = computed(() => {
     if (intervalModel.value !== "customrange") {
         return { interval: intervalModel.value };
@@ -78,34 +70,15 @@ const params = computed(() => {
         };
     }
 });
-const { data, refresh } = await useFetch("/api/btc", {
+/* 2.2 Fetch using params (autorefetch on params update) */
+const { data } = await useFetch("/api/btc", {
     params,
-    // watch: [intervalModel, rangeModel],
-    /* key:
-        "/api/btc?interval=" +
-        (intervalModel.value == "customrange"
-            ? "customrange" +
-              "&" +
-              "lowerLimit=" +
-              rangeModel.value[0] +
-              "&" +
-              "upperLimit=" +
-              rangeModel.value[1] // Ключ для range (состоит из customrange+lowerlimit+upperlimit)
-            : intervalModel.value), */
 });
-
-/* watch(
-    [intervalModel, rangeModel],
-    () => {
-        refresh();
-    },
-    { deep: true },
-); */
-
+/* 2.3 remap to extract jsons */
 const btcUpdates = computed(() => {
     return data.value!.map((btcUpdate) => btcUpdate.json);
 });
-
+/* 2.4 extract y-axis data */
 const timestamps_Y = computed(() => {
     return btcUpdates.value.map((btcUpdate) => {
         // @ts-ignore
@@ -118,23 +91,26 @@ const timestamps_Y = computed(() => {
         });
     });
 });
-
+/* 2.5 extract x-axis data */
 const prices_X = computed(() => {
     // @ts-ignore
     return btcUpdates.value.map((btcUpdate) => btcUpdate.bpi.USD.rate_float);
 });
 
-/* Use fetched data in chart */
-const chartData = ref({
-    labels: timestamps_Y,
-    datasets: [
-        {
-            label: "BTC/USD",
-            backgroundColor: "#1ABA6A",
-            data: prices_X,
-        },
-    ],
-});
+/* 3. Setup chart */
+ChartJS.defaults.color = "#C7C7C7";
+ChartJS.defaults.borderColor = "white";
+ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    LineController,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+);
+/* 3.1 Prepare ChartOptions */
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -142,9 +118,9 @@ const chartOptions = {
         decimation: { enabled: true, algorithm: "lttb" },
     },
 };
-
-const chartData2 = computed(() => {
-    const res = ref({
+/* 3.2 Compute ChartData */
+const chartData = computed(() => {
+    const res = reactive({
         labels: timestamps_Y,
         datasets: [
             {
@@ -156,11 +132,21 @@ const chartData2 = computed(() => {
     });
     return res;
 });
-/* Anti FOUC for naive-ui controls */
-const controlsVisible = ref(false);
-onMounted(() => {
-    controlsVisible.value = true;
-});
+
+/* 4. Refresh chart (Line) on data update
+    // Chart update is triggered only when :key is changed
+    // :key accepts strings, so chartKostilToString is
+    // computed of chartKostil
+*/
+const chartKostil = ref(0);
+const chartKostilToString = computed(() => chartKostil.value.toString());
+watch(
+    chartData,
+    () => {
+        chartKostil.value++;
+    },
+    { deep: true },
+);
 </script>
 
 <template>
@@ -175,7 +161,8 @@ onMounted(() => {
             class="effects relative grow bg-black px-[10%] py-[5%]"
         >
             <Line
-                :data="chartData2.value"
+                :key="chartKostilToString"
+                :data="chartData"
                 :options="{
                     responsive: true,
                     maintainAspectRatio: false,
