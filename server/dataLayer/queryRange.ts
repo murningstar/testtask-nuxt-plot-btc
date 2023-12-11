@@ -1,10 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../prismaClient/prisma";
 
-async function queryRange(
-    lowerLimit: Date,
-    upperLimit: Date,
-    prisma: PrismaClient,
-) {
+async function queryRange(lowerLimit: Date, upperLimit: Date) {
     return await prisma.btcUpdate.findMany({
         where: {
             timestamp: {

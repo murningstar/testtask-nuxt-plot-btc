@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import {
     getDateDayAgo,
     getDateWeekAgo,
@@ -8,21 +7,19 @@ import {
 import { queryRange } from "../dataLayer/queryRange";
 
 export default defineEventHandler(async (event) => {
-    // @ts-ignore
-    const prisma = useNitroApp().prisma as PrismaClient;
     const params = getQuery(event);
     switch ((params as any).interval) {
         case "day": {
-            return await queryRange(getDateDayAgo(), new Date(), prisma);
+            return await queryRange(getDateDayAgo(), new Date());
         }
         case "week": {
-            return await queryRange(getDateWeekAgo(), new Date(), prisma);
+            return await queryRange(getDateWeekAgo(), new Date());
         }
         case "month": {
-            return await queryRange(getDateMonthAgo(), new Date(), prisma);
+            return await queryRange(getDateMonthAgo(), new Date());
         }
         case "year": {
-            return await queryRange(getDateYearAgo(), new Date(), prisma);
+            return await queryRange(getDateYearAgo(), new Date());
         }
         case "customrange": {
             const { lowerLimit, upperLimit } = params as any;
@@ -32,7 +29,6 @@ export default defineEventHandler(async (event) => {
                 return await queryRange(
                     new Date(Number(lowerLimit)),
                     new Date(Number(upperLimit)),
-                    prisma,
                 );
             } else {
                 throw createError({
