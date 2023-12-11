@@ -1,6 +1,7 @@
 # Nuxt btc-chart тестовое
 
-Собранный проект запускается запуском docker-compose файла, из второго репозитория: https://github.com/murningstar/testtask-polling-btc-pg" (Репозиторий с базой и сервисом-поллером данных из открытого api)
+Запуск - `docker compose up`. `docker-compose.yaml` лежит во втором репозитории - https://github.com/murningstar/testtask-polling-btc-pg" (Репозиторий с базой и сервисом-поллером данных из открытого api)
+
 
 ## Структура/описание/логика:
 
